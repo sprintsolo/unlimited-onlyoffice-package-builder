@@ -42,8 +42,9 @@ DEB_ONLY="false"
 
 UPSTREAM_ORGANIZATION="ONLYOFFICE"
 
-SERVER_CUSTOM_COMMITS="35fda010a253c42344c08857424aa50c48f7eb8a"
-WEB_APPS_CUSTOM_COMMITS="140ef6d1d687532dcb03b05912838b8b4cf161a3"
+SERVER_CUSTOM_COMMITS="9d2caf9f564b1801f7c23ca04be926fa436a3a3f"
+WEB_APPS_CUSTOM_COMMITS=""
+CORE_CUSTOM_COMMITS="70730dd538c4c6494c3ab6fc5f73724767295178"
 
 # Check the arguments.
 for option in "$@"; do
@@ -210,6 +211,7 @@ build_oo_binaries() {
 
   prepare_custom_repo "server" "${_UPSTREAM_TAG}" "${_UNLIMITED_ORGANIZATION}" ${SERVER_CUSTOM_COMMITS}
   prepare_custom_repo "web-apps" "${_UPSTREAM_TAG}" "${_UNLIMITED_ORGANIZATION}" ${WEB_APPS_CUSTOM_COMMITS}
+  prepare_custom_repo "core" "${_UPSTREAM_TAG}" "${_UNLIMITED_ORGANIZATION}" ${CORE_CUSTOM_COMMITS}
 
   git clone \
     --depth=1 \
@@ -221,7 +223,7 @@ build_oo_binaries() {
   cd build_tools
   mkdir ${_OUT_FOLDER}
   docker build --tag onlyoffice-document-editors-builder .
-  docker run -e PRODUCT_VERSION=${_PRODUCT_VERSION} -e BUILD_NUMBER=${_BUILD_NUMBER} -e NODE_ENV='production' -v $(pwd)/${_OUT_FOLDER}:/build_tools/out -v $(pwd)/../server:/server -v $(pwd)/../web-apps:/web-apps onlyoffice-document-editors-builder /bin/bash -c '\
+  docker run -e PRODUCT_VERSION=${_PRODUCT_VERSION} -e BUILD_NUMBER=${_BUILD_NUMBER} -e NODE_ENV='production' -v $(pwd)/${_OUT_FOLDER}:/build_tools/out -v $(pwd)/../server:/server -v $(pwd)/../web-apps:/web-apps -v $(pwd)/../core:/core onlyoffice-document-editors-builder /bin/bash -c '\
     cd tools/linux && \
     python3 ./automate.py --branch=tags/'"${_UPSTREAM_TAG}"
   cd ..
