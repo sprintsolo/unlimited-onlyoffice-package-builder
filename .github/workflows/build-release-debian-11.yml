@@ -71,10 +71,14 @@ jobs:
       - name: Check out the repo
         uses: actions/checkout@v4
       - name: Split branch name
-        env:
-          BRANCH: ${{ github.ref_name }}
         id: split-tag
-        run: echo "version=${BRANCH##*/}" >> $GITHUB_OUTPUT
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "version=${{ inputs.version }}" >> $GITHUB_OUTPUT
+          else
+            BRANCH="${{ github.ref_name }}"
+            echo "version=${BRANCH##*/}" >> $GITHUB_OUTPUT
+          fi
       - name: Get Product version
         env:
           VERSION: ${{ steps.split-tag.outputs.version }}
