@@ -124,6 +124,10 @@ build_deb() {
 
   git clone https://github.com/ONLYOFFICE/document-server-package.git -b ${_GIT_CLONE_BRANCH}
   # Ignore DETACHED warnings
+
+  # Fix for Debian 11: dpkg-deb does not support --threads-max option
+  sed -i 's/ --threads-max=[0-9]*//g' ${DOCUMENT_SERVER_PACKAGE_PATH}/deb/build/debian/rules 2>/dev/null || true
+
   # Workaround for installing dependencies - BEGIN
   cd ${DOCUMENT_SERVER_PACKAGE_PATH}
 
