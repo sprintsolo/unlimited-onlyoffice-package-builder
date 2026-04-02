@@ -107,11 +107,16 @@ jobs:
       - name: Get tgz release filename
         id: deb-release
         run: |
-          RELEASE_DEB=$(find "${{ github.workspace }}" -name "onlyoffice-documentserver_${{ steps.get-product-version.outputs.product-version }}-${{ steps.get-build-number.outputs.build-number }}${{ env.DEBIAN_PACKAGE_SUFFIX }}_amd64.deb" -type f 2>/dev/null)
+          echo "=== Searching for deb file ==="
+          sudo find "${{ github.workspace }}" -name "*.deb" -type f 2>/dev/null || true
+          RELEASE_DEB=$(sudo find "${{ github.workspace }}" -name "onlyoffice-documentserver_${{ steps.get-product-version.outputs.product-version }}-${{ steps.get-build-number.outputs.build-number }}${{ env.DEBIAN_PACKAGE_SUFFIX }}_amd64.deb" -type f 2>/dev/null | head -1)
           if [ -z "${RELEASE_DEB}" ]; then
             echo "ERROR: deb file not found!"
+            echo "=== Listing deb_build directory ==="
+            sudo find "${{ github.workspace }}/deb_build" -maxdepth 4 -type f -name "*.deb" 2>/dev/null || true
             exit 1
           fi
+          echo "Found: ${RELEASE_DEB}"
           RELEASE_SHORT_DEB=$(basename ${RELEASE_DEB})
           echo "filename=${RELEASE_DEB}" >> $GITHUB_OUTPUT
           echo "shortfilename=${RELEASE_SHORT_DEB}" >> $GITHUB_OUTPUT
