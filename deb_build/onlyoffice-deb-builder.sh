@@ -126,8 +126,8 @@ build_deb() {
   # Ignore DETACHED warnings
 
   # Fix for Debian 11: dpkg-deb does not support --threads-max option
-  # Patch the m4 template so the generated rules file won't have it
-  sed -i 's/ --threads-max=[0-9]*//g' ${DOCUMENT_SERVER_PACKAGE_PATH}/deb/template/rules.m4 2>/dev/null || true
+  # Remove the entire --threads-max=$(shell nproc) from the m4 template
+  sed -i 's/ --threads-max=\$(shell nproc)//g' ${DOCUMENT_SERVER_PACKAGE_PATH}/deb/template/rules.m4 2>/dev/null || true
 
   # Workaround for installing dependencies - BEGIN
   cd ${DOCUMENT_SERVER_PACKAGE_PATH}
