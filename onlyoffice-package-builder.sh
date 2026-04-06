@@ -223,12 +223,7 @@ build_oo_binaries() {
   cd build_tools
   mkdir ${_OUT_FOLDER}
   docker build --tag onlyoffice-document-editors-builder .
-  docker run -e PRODUCT_VERSION=${_PRODUCT_VERSION} -e BUILD_NUMBER=${_BUILD_NUMBER} -e NODE_ENV='production' -e GCLIENT_SHALLOW=1 -v $(pwd)/${_OUT_FOLDER}:/build_tools/out -v $(pwd)/../server:/server -v $(pwd)/../web-apps:/web-apps -v $(pwd)/../core:/core onlyoffice-document-editors-builder /bin/bash -c '\
-    git config --global core.compression 0 && \
-    git config --global http.postBuffer 524288000 && \
-    git config --global http.lowSpeedLimit 1000 && \
-    git config --global http.lowSpeedTime 300 && \
-    git config --global core.deltaBaseCacheLimit 2g && \
+  docker run -e PRODUCT_VERSION=${_PRODUCT_VERSION} -e BUILD_NUMBER=${_BUILD_NUMBER} -e NODE_ENV='production' -e GCLIENT_SHALLOW=1 -e GIT_CONFIG_COUNT=5 -e GIT_CONFIG_KEY_0=core.compression -e GIT_CONFIG_VALUE_0=0 -e GIT_CONFIG_KEY_1=http.postBuffer -e GIT_CONFIG_VALUE_1=524288000 -e GIT_CONFIG_KEY_2=http.lowSpeedLimit -e GIT_CONFIG_VALUE_2=1000 -e GIT_CONFIG_KEY_3=http.lowSpeedTime -e GIT_CONFIG_VALUE_3=300 -e GIT_CONFIG_KEY_4=core.deltaBaseCacheLimit -e GIT_CONFIG_VALUE_4=2g -v $(pwd)/${_OUT_FOLDER}:/build_tools/out -v $(pwd)/../server:/server -v $(pwd)/../web-apps:/web-apps -v $(pwd)/../core:/core onlyoffice-document-editors-builder /bin/bash -c '\
     cd tools/linux && \
     build_ok=false && \
     for attempt in 1 2 3; do \
