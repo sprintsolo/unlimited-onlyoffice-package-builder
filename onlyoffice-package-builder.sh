@@ -222,12 +222,14 @@ build_oo_binaries() {
   # Ignore detached head warning
   cd build_tools
   mkdir ${_OUT_FOLDER}
-  docker build --no-cache --tag onlyoffice-document-editors-builder .
+  docker build --tag onlyoffice-document-editors-builder .
   docker run -e PRODUCT_VERSION=${_PRODUCT_VERSION} -e BUILD_NUMBER=${_BUILD_NUMBER} -e NODE_ENV='production' -v $(pwd)/${_OUT_FOLDER}:/build_tools/out -v $(pwd)/../server:/server -v $(pwd)/../web-apps:/web-apps -v $(pwd)/../core:/core onlyoffice-document-editors-builder /bin/bash -c '\
     cd tools/linux && \
     for attempt in 1 2 3; do \
       python3 ./automate.py --branch=tags/'"${_UPSTREAM_TAG}"' && break; \
       echo "Build attempt $attempt failed, retrying in 120s..."; \
+      echo "Cleaning up corrupted v8 build state..."; \
+      rm -rf /core/Common/3dParty/v8_89/v8 /core/Common/3dParty/v8_89/depot_tools /core/Common/3dParty/v8_89/_bad_scm 2>/dev/null; \
       sleep 120; \
     done'
   cd ..
