@@ -223,7 +223,12 @@ build_oo_binaries() {
   cd build_tools
   mkdir ${_OUT_FOLDER}
   docker build --tag onlyoffice-document-editors-builder .
-  docker run -e PRODUCT_VERSION=${_PRODUCT_VERSION} -e BUILD_NUMBER=${_BUILD_NUMBER} -e NODE_ENV='production' -v $(pwd)/${_OUT_FOLDER}:/build_tools/out -v $(pwd)/../server:/server -v $(pwd)/../web-apps:/web-apps -v $(pwd)/../core:/core onlyoffice-document-editors-builder /bin/bash -c '\
+  docker run -e PRODUCT_VERSION=${_PRODUCT_VERSION} -e BUILD_NUMBER=${_BUILD_NUMBER} -e NODE_ENV='production' -e GCLIENT_SHALLOW=1 -v $(pwd)/${_OUT_FOLDER}:/build_tools/out -v $(pwd)/../server:/server -v $(pwd)/../web-apps:/web-apps -v $(pwd)/../core:/core onlyoffice-document-editors-builder /bin/bash -c '\
+    git config --global core.compression 0 && \
+    git config --global http.postBuffer 524288000 && \
+    git config --global http.lowSpeedLimit 1000 && \
+    git config --global http.lowSpeedTime 300 && \
+    git config --global core.deltaBaseCacheLimit 2g && \
     cd tools/linux && \
     build_ok=false && \
     for attempt in 1 2 3; do \
