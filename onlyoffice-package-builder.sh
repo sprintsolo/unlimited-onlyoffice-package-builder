@@ -222,7 +222,9 @@ build_oo_binaries() {
   # Ignore detached head warning
   cd build_tools
   mkdir ${_OUT_FOLDER}
-  # Restore v8 cache if available
+
+  # Pre-setup v8 dependencies from GitHub mirrors to avoid chromium.googlesource.com blocks
+  V8_DIR="$(pwd)/../core/Common/3dParty/v8_89"
   V8_CACHE_FILE="$(pwd)/../v8-cache.tar.gz"
   if [ "${V8_CACHE_HIT}" == "true" ] && [ -f "${V8_CACHE_FILE}" ]; then
     echo "=== Restoring v8 build cache ==="
