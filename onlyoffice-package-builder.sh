@@ -223,7 +223,8 @@ build_oo_binaries() {
   cd build_tools
   mkdir ${_OUT_FOLDER}
   docker build --tag onlyoffice-document-editors-builder .
-  docker run -e PRODUCT_VERSION=${_PRODUCT_VERSION} -e BUILD_NUMBER=${_BUILD_NUMBER} -e NODE_ENV='production' -e GCLIENT_SHALLOW=1 -e GIT_CONFIG_COUNT=5 -e GIT_CONFIG_KEY_0=core.compression -e GIT_CONFIG_VALUE_0=0 -e GIT_CONFIG_KEY_1=http.postBuffer -e GIT_CONFIG_VALUE_1=524288000 -e GIT_CONFIG_KEY_2=http.lowSpeedLimit -e GIT_CONFIG_VALUE_2=1000 -e GIT_CONFIG_KEY_3=http.lowSpeedTime -e GIT_CONFIG_VALUE_3=300 -e GIT_CONFIG_KEY_4=core.deltaBaseCacheLimit -e GIT_CONFIG_VALUE_4=2g -v $(pwd)/${_OUT_FOLDER}:/build_tools/out -v $(pwd)/../server:/server -v $(pwd)/../web-apps:/web-apps -v $(pwd)/../core:/core onlyoffice-document-editors-builder /bin/bash -c '\
+  docker run -e PRODUCT_VERSION=${_PRODUCT_VERSION} -e BUILD_NUMBER=${_BUILD_NUMBER} -e NODE_ENV='production' -e GCLIENT_SHALLOW=1 -v $(pwd)/${_OUT_FOLDER}:/build_tools/out -v $(pwd)/../server:/server -v $(pwd)/../web-apps:/web-apps -v $(pwd)/../core:/core onlyoffice-document-editors-builder /bin/bash -c '\
+    printf "[core]\n\tcompression = 0\n\tdeltaBaseCacheLimit = 2g\n[http]\n\tpostBuffer = 524288000\n\tlowSpeedLimit = 1000\n\tlowSpeedTime = 300\n" > ~/.gitconfig && \
     cd tools/linux && \
     build_ok=false && \
     for attempt in 1 2 3; do \
