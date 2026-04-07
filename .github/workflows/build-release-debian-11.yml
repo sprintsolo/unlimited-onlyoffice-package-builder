@@ -94,10 +94,42 @@ jobs:
           PRODUCT_VERSION: ${{ steps.get-product-version.outputs.product-version }}
         id: get-build-number
         run: echo "build-number=${VERSION##$PRODUCT_VERSION.}" >> $GITHUB_OUTPUT
+      - name: Restore v8 cache
+        id: v8-cache
+        uses: actions/cache@v4
+        with:
+          path: v8-cache.tar.gz
+          key: v8-build-linux64-v89-1
       - name: Docker build binaries
         id: docker-build-binaries
+        env:
+          V8_CACHE_HIT: ${{ steps.v8-cache.outputs.cache-hit }}
         run: |
           sudo ./onlyoffice-package-builder.sh --product-version=${{ steps.get-product-version.outputs.product-version }} --build-number=${{ steps.get-build-number.outputs.build-number }} --unlimited-organization=${{ github.repository_owner }} --tag-suffix=${{ env.TAG_SUFFIX }} --debian-package-suffix=${{ env.DEBIAN_PACKAGE_SUFFIX }} --binaries-only
+      - name: Save v8 cache
+        if: steps.v8-cache.outputs.cache-hit != 'true'
+        run: |
+          V8_DIR="core/Common/3dParty/v8_89"
+          if [ -f "${V8_DIR}/v8/out.gn/linux_64/obj/libv8_monolith.a" ]; then
+            echo "Saving v8 build cache..."
+            tar czf v8-cache.tar.gz \
+              "${V8_DIR}/v8/out.gn" \
+              "${V8_DIR}/v8/include" \
+              "${V8_DIR}/v8/src/inspector/v8-inspector-impl.h" \
+              "${V8_DIR}/v8/src/inspector/string-16.h" \
+              "${V8_DIR}/v8/src/inspector/v8-inspector-session-impl.h" \
+              "${V8_DIR}/depot_tools" \
+              "${V8_DIR}/v8/third_party/jinja2" \
+              "${V8_DIR}/v8/build" \
+              "${V8_DIR}/v8/buildtools" \
+              "${V8_DIR}/v8/base" \
+              "${V8_DIR}/v8/third_party/abseil-cpp" \
+              "${V8_DIR}/v8/third_party/markupsafe" \
+              2>/dev/null || true
+            echo "v8 cache saved: $(du -sh v8-cache.tar.gz)"
+          else
+            echo "v8 build output not found, skipping cache save"
+          fi
       - name: Docker prune all containers
         id: docker-prune-all-containers
         run: |

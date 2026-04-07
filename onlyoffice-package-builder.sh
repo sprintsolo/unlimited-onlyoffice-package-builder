@@ -222,6 +222,17 @@ build_oo_binaries() {
   # Ignore detached head warning
   cd build_tools
   mkdir ${_OUT_FOLDER}
+  # Restore v8 cache if available
+  V8_CACHE_FILE="$(pwd)/../v8-cache.tar.gz"
+  if [ "${V8_CACHE_HIT}" == "true" ] && [ -f "${V8_CACHE_FILE}" ]; then
+    echo "=== Restoring v8 build cache ==="
+    cd ..
+    tar xzf v8-cache.tar.gz
+    echo "v8 cache restored. Checking libv8_monolith.a..."
+    ls -lh core/Common/3dParty/v8_89/v8/out.gn/linux_64/obj/libv8_monolith.a 2>/dev/null || echo "WARNING: libv8_monolith.a not found in cache"
+    cd build_tools
+  fi
+
   docker build --tag onlyoffice-document-editors-builder .
   docker run -e PRODUCT_VERSION=${_PRODUCT_VERSION} -e BUILD_NUMBER=${_BUILD_NUMBER} -e NODE_ENV='production' -e GCLIENT_SHALLOW=1 -v $(pwd)/${_OUT_FOLDER}:/build_tools/out -v $(pwd)/../server:/server -v $(pwd)/../web-apps:/web-apps -v $(pwd)/../core:/core onlyoffice-document-editors-builder /bin/bash -c '\
     printf "[core]\n\tcompression = 0\n\tdeltaBaseCacheLimit = 2g\n[http]\n\tpostBuffer = 524288000\n\tlowSpeedLimit = 1000\n\tlowSpeedTime = 300\n" > ~/.gitconfig && \
